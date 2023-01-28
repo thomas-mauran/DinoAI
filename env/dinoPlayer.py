@@ -7,8 +7,12 @@ class dinoPlayerClass(pygame.sprite.Sprite):
 
         self.default_top_offset = y
 
-        self.position_x = x
-        self.position_y = y
+        self.default_width = x
+        self.default_height = y
+        self.default_y = y
+
+        self.x = x
+        self.y = y
 
 
         self.velocity = 2
@@ -19,6 +23,7 @@ class dinoPlayerClass(pygame.sprite.Sprite):
 
 
         self.canJump = True
+        self.stand = True
 
         self.mass = 0.2
     def update(self):
@@ -30,20 +35,45 @@ class dinoPlayerClass(pygame.sprite.Sprite):
             else:
                 F = -( 0.5 * self.mass * (self.velocity*self.velocity) )
            
-            self.position_y += F
+            self.y += F
 
             self.velocity -= 0.002
  
             # We hit the floor we can jump again
-            if self.position_y - 1 >= self.default_top_offset:
+            if self.y - 1 >= self.default_top_offset:
                 self.canJump = True
                 self.velocity = 2
     
     def draw(self):
-        pygame.draw.rect(self.surface, (0, 0, 0),pygame.Rect(self.position_x, self.position_y, self.width, self.height
+        pygame.draw.rect(self.surface, (0, 0, 0),pygame.Rect(self.x, self.y, self.width, self.height
         ))
 
     def jump(self):
-        if self.canJump == True:
+        if self.canJump and self.stand:
             self.canJump = False
-    
+    def get_y(self):
+        return self.y
+    def get_x(self):
+        return self.x
+
+    def get_width(self):
+        return self.width    
+    def get_height(self):
+        return self.height
+
+    def down(self):
+        self.y = self.default_y
+    # def down(self):
+    #     self.stand = not self.stand
+
+    #     if self.stand:
+    #         self.width = self.default_width
+    #         self.height = self.default_height
+    #         self.y = self.default_y
+    #     else:
+    #         print('crouch')
+    #         self.height = self.width / 2
+    #         self.y += self.height
+
+
+
