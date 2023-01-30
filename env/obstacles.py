@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 
+import numpy as np
 
 class obstacleClass(pygame.sprite.Sprite):
     def __init__(self, surface, x, y, width, height, speed):
@@ -35,4 +36,7 @@ class obstacleClass(pygame.sprite.Sprite):
 
     def getWidth(self):
         return self.width
+
+    def location(self):
+        return np.array([self.x, self.y], dtype=int)
 

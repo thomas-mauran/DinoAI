@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import numpy as np
 
 class dinoPlayerClass(pygame.sprite.Sprite):
     def __init__(self, surface, x, y, width, height):
@@ -9,6 +10,8 @@ class dinoPlayerClass(pygame.sprite.Sprite):
 
         self.default_width = x
         self.default_height = y
+
+        self.default_x = x
         self.default_y = y
 
         self.x = x
@@ -63,6 +66,18 @@ class dinoPlayerClass(pygame.sprite.Sprite):
 
     def down(self):
         self.y = self.default_y
+
+    def location(self):
+        return np.array([self.x, self.y], dtype=int)
+
+    def reset(self):
+        self.x = self.default_x
+        self.y = self.default_y
+        self.velocity = 2
+
+        self.canJump = True
+        self.stand = True
+
     # def down(self):
     #     self.stand = not self.stand
 
