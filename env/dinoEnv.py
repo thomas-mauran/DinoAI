@@ -34,13 +34,13 @@ class dinoEnvClass(gym.Env):
         self.obstacles = []
 
         # Game variables
-        self.score = 0
+        self.addScore = 0
         self.running = False
         self.speed = 0.1
 
         # Gym env 
         # 2 actions, jump, go back to the floor, or do nothing
-        self.action_space = Discrete(3)
+        self.action_space = Discrete(2)
 
         self.observation_space = Dict(
             {
@@ -48,18 +48,10 @@ class dinoEnvClass(gym.Env):
                 'obs1': Box(-100, 2000, shape=(2,), dtype=int),
                 'obs2': Box(-100, 2000, shape=(2,), dtype=int),
 
-                # 1: Tuple((Box(-100, 2000, shape=(2,)), Box(0, 2000, shape=(2,))))
                     
             }
         )
-        # self.observation_space = Dict(
-        #     {
-        #         "agent": Box(0, 10 - 1, shape=(2,), dtype=int),
-        #         "target": Box(0, 10 - 1, shape=(2,), dtype=int),
-        #     }
-        # )
 
-        # print(self.observation_space.sample())
 
     def _get_obs(self):
         return {
@@ -82,8 +74,8 @@ class dinoEnvClass(gym.Env):
         self.dino.reset()
 
         self.obstacles = []
-        self.spawn_obstacle(self.speed, random.randint(100, 500))
-        self.spawn_obstacle(self.speed, random.randint(500, 1500))
+        self.spawn_obstacle(self.speed, random.randint(100, 400))
+        self.spawn_obstacle(self.speed, random.randint(600, 1000))
 
 
 
@@ -111,7 +103,8 @@ class dinoEnvClass(gym.Env):
             if obs.get_x() < 0 - obs.getWidth() :
                 self.obstacles.remove(obs)
                 del obs
-                self.spawn_obstacle(self.speed, random.randint(30, 1000))
+                self.addScore = 100
+                self.spawn_obstacle(self.speed, random.randint(600, 1000))
 
         if self.render_mode == 'human':
             pygame.init()
@@ -126,22 +119,28 @@ class dinoEnvClass(gym.Env):
 
 
     def step(self, action):
-        if action == 0:
-            self.dino.down()
+        self.addScore = 0.01
+        # if action == 0:
+        #     self.dino.down()
         if action == 1:
             self.dino.jump()
-        if action == 2:
-            pass
 
         self.speed += random.uniform(0.0000007, 0.000001)
-        self.score = self.score + 0.001
+        # self.score = self.score + 0.001
+    
 
         self._render_frame()
         terminated = self.isGameDone()
+        if terminated:
+            reward = -300
         
-        reward = 0.1
+        if self.checkJumpOver():
+            reward = 100
+
+        reward = self.addScore
         observation = self._get_obs()
         info = self._get_info()
+        self.addScore = 0
 
         return observation, reward, terminated, info
 
@@ -157,15 +156,7 @@ class dinoEnvClass(gym.Env):
         self.obstacles.append(obstacle)
 
 
-    def initGame(self):
-        
-        self.score = 0
-        self.running = True
 
-        self.spawn_obstacle(0.1, random.randint(100, 500))
-        self.spawn_obstacle(0.1, random.randint(500, 1500))
-
-        self.main()
 
 
     def isHittingDino(self, obstacle):
@@ -180,16 +171,48 @@ class dinoEnvClass(gym.Env):
         obstacleHeight = obstacle.get_height()
 
         if (obstacleX < dinoX + dinoWidth) and (obstacleX + obstacleWidth > dinoX) and (obstacleY < dinoY + dinoHeight) and (obstacleHeight + obstacleY > dinoY):
+            
             return True
         return False
 
+    def jumpedOver(self, obstacle):
+        dinoX = self.dino.get_x()
+        dinoY = self.dino.get_y()
+       
+        obstacleX = obstacle.get_x()
+        obstacleY = obstacle.get_y()
+        obstacleHeight = obstacle.get_height()
+ 
+        if (dinoX >= obstacleX and dinoY <= obstacleY - obstacleHeight):
+            return True
+
+
+        return False
+
+
     def isGameDone(self):
-        result = False
 
         for obs in self.obstacles:
             if self.isHittingDino(obs):
-                result = True
-        return result
+                return True
+        return False
+
+    def checkJumpOver(self):
+        for obs in self.obstacles:
+            if self.jumpedOver(obs):
+                return True
+        return False
+
+    def initGame(self):
+        
+        # self.score = 0
+        self.running = True
+
+        self.spawn_obstacle(0.1, random.randint(100, 400))
+        self.spawn_obstacle(0.1, random.randint(600, 1000))
+
+        self.main()
+
     def main(self):
 
         while running:
@@ -198,7 +221,7 @@ class dinoEnvClass(gym.Env):
 
             self.screen.fill((255, 255, 255))
 
-            self.score = self.score + 0.001
+            # self.score = self.score + 0.001
 
 
             # Event handlers 
@@ -230,6 +253,7 @@ class dinoEnvClass(gym.Env):
                 if obs.get_x() < 0 - obs.getWidth() :
                     self.obstacles.remove(obs)
                     del obs
+                    # self.score += 100
                     self.spawn_obstacle(self.speed, random.randint(30, 1000))
 
             # Update the scren frames

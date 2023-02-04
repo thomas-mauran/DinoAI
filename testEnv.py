@@ -1,6 +1,10 @@
 from env.dinoEnv import dinoEnvClass
 
 from stable_baselines3 import PPO
+from stable_baselines3 import DQN
+from stable_baselines3 import A2C
+
+
 import os 
 
 env = dinoEnvClass(render_mode='human')
@@ -22,10 +26,9 @@ episodes = 10
 #     print ("Episode: {} Score: {}".format(episode, score))
 # env.close()
 
+model_path = os.path.join('files', 'Saved_Models', 'DQN_1.zip')
 
-PPO_Path = os.path.join('files', 'Saved_Models', 'PPO.zip')
-
-model = PPO.load(PPO_Path, env=env)
+model = DQN.load(model_path, env=env)
 
 
 for episode in range (1, episodes + 1):
@@ -40,3 +43,4 @@ for episode in range (1, episodes + 1):
         score += reward
     print ("Episode: {} Score: {}".format(episode, score))
 env.close()
+

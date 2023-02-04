@@ -2,42 +2,72 @@ from env.dinoEnv import dinoEnvClass
 from stable_baselines3.common.env_checker import check_env
 import os
 
+import gym
+from multiprocessing import freeze_support
+
 from stable_baselines3 import PPO
 from stable_baselines3 import DQN
-from stable_baselines3.common.vec_env import DummyVecEnv
-from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3 import A2C
+from stable_baselines3.common.vec_env import SubprocVecEnv
+from stable_baselines3.common.vec_env import VecFrameStack
 from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnRewardThreshold
 
-env = dinoEnvClass()
-check_env(env)
-print(env.action_space.sample())
 
-# env = AsyncVectorEnv([lambda: dinoEnvClass()])
-episodes = 5
+from gym.envs.registration import register
 
-# print(env.observation_space.sample())
+register(
+    id='ChromeDino-v0', 
+    entry_point='env.dinoEnv:dinoEnvClass', 
+)
 
-# Random method
-# for episode in range (1, episodes + 1):
-#     state = env.reset()
-#     done = False
-#     score = 0
 
-#     while not done:
-#         env.render()
-#         action = env.action_space.sample()
-#         obs, reward, done, info, _ = env.step(action)
-#         score += reward
-#     print ("Episode: {} Score: {} Obs: {}".format(episode, score, obs))
-# env.close()
+freeze_support()
 
-log_path = os.path.join('files', 'Logs')
+nproc = 8
+env_name = 'ChromeDino-v0'
 
-save_path = os.path.join('files', 'Saved_Models')
 
-model = PPO('MultiInputPolicy', env, verbose=1, tensorboard_log=log_path)
+def make_env():
+    def _f():
+        env = gym.make('ChromeDino-v0')
+        return env
+    return _f
 
-model.learn(total_timesteps=1000000)
+if __name__ == '__main__':
+    freeze_support()
+    envs = [make_env() for i in range(nproc)]
+    envs = SubprocVecEnv(envs)
+    envs = VecFrameStack(envs, n_stack=10)
 
-PPO_Path = os.path.join('files', 'Saved_Models', 'PPO_2')
-model.save(PPO_Path)
+
+    envs = gym.make(env_name)
+    check_env(envs)
+    print(envs.action_space.sample())
+
+
+    # # Random method
+    # episodes = 5
+
+    # for episode in range (1, episodes + 1):
+    #     state = envs.reset()
+    #     done = False
+    #     score = 0
+
+    #     while not done:
+    #         envs.render()
+    #         action = envs.action_space.sample()
+    #         obs, reward, done, info, _ = envs.step(action)
+    #         score += reward
+    #     print ("Episode: {} Score: {} Obs: {}".format(episode, score, obs))
+    # envs.close()
+
+    log_path = os.path.join('files', 'Logs')
+
+    save_path = os.path.join('files', 'Saved_Models', 'DQN_1')
+
+    model = DQN('MultiInputPolicy', envs, verbose=1, tensorboard_log=log_path)
+
+    model.learn(total_timesteps=1000000)    
+
+
+    model.save(save_path)    

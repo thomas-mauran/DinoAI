@@ -67,6 +67,8 @@ class dinoPlayerClass(pygame.sprite.Sprite):
     def down(self):
         self.y = self.default_y
 
+    def getJump(self):
+        return self.canJump
     def location(self):
         return np.array([self.x, self.y], dtype=int)
 
