@@ -8,6 +8,7 @@ from multiprocessing import freeze_support
 from stable_baselines3 import PPO
 from stable_baselines3 import DQN
 from stable_baselines3 import A2C
+
 from stable_baselines3.common.vec_env import SubprocVecEnv
 from stable_baselines3.common.vec_env import VecFrameStack
 from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnRewardThreshold
@@ -42,7 +43,6 @@ if __name__ == '__main__':
 
     envs = gym.make(env_name)
     check_env(envs)
-    print(envs.action_space.sample())
 
 
     # # Random method
@@ -63,11 +63,11 @@ if __name__ == '__main__':
 
     log_path = os.path.join('files', 'Logs')
 
-    save_path = os.path.join('files', 'Saved_Models', 'DQN_1')
+    save_path = os.path.join('files', 'Saved_Models', 'DQN_new')
 
     model = DQN('MultiInputPolicy', envs, verbose=1, tensorboard_log=log_path)
 
-    model.learn(total_timesteps=1000000)    
+    model.learn(total_timesteps=2000000)    
 
 
     model.save(save_path)    

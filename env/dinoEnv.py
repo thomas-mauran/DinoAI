@@ -36,7 +36,7 @@ class dinoEnvClass(gym.Env):
         # Game variables
         self.addScore = 0
         self.running = False
-        self.speed = 0.1
+        self.speed = 0.12
 
         # Gym env 
         # 2 actions, jump, go back to the floor, or do nothing
@@ -69,13 +69,13 @@ class dinoEnvClass(gym.Env):
         self.score = 0
         self.running = True
 
-        self.speed = 0.1
+        self.speed = 0.12
         # reset the env
         self.dino.reset()
 
         self.obstacles = []
-        self.spawn_obstacle(self.speed, random.randint(100, 400))
-        self.spawn_obstacle(self.speed, random.randint(600, 1000))
+        self.spawn_obstacle(self.speed, random.randint(0, 300))
+        self.spawn_obstacle(self.speed, random.randint(500, 700))
 
 
 
@@ -88,13 +88,9 @@ class dinoEnvClass(gym.Env):
             
         return observation
 
-    def render(self):
-        if self.render_mode == "human":
-            return self._render_frame()
-        else:
-            pass
+    def render(self, mode):
+        pass
     def _render_frame(self):
-
 
         self.dino.update()
 
@@ -104,7 +100,7 @@ class dinoEnvClass(gym.Env):
                 self.obstacles.remove(obs)
                 del obs
                 self.addScore = 100
-                self.spawn_obstacle(self.speed, random.randint(600, 1000))
+                self.spawn_obstacle(self.speed, random.randint(0, 400))
 
         if self.render_mode == 'human':
             pygame.init()
@@ -120,8 +116,8 @@ class dinoEnvClass(gym.Env):
 
     def step(self, action):
         self.addScore = 0.01
-        # if action == 0:
-        #     self.dino.down()
+        if action == 0:
+            self.dino.down()
         if action == 1:
             self.dino.jump()
 
@@ -134,10 +130,10 @@ class dinoEnvClass(gym.Env):
         if terminated:
             reward = -300
         
-        if self.checkJumpOver():
-            reward = 100
+        # if self.checkJumpOver():
+        #     reward = 100
 
-        reward = self.addScore
+        reward = 1
         observation = self._get_obs()
         info = self._get_info()
         self.addScore = 0
