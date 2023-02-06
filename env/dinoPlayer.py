@@ -3,7 +3,7 @@ from pygame.locals import *
 import numpy as np
 
 class dinoPlayerClass(pygame.sprite.Sprite):
-    def __init__(self, surface, x, y, width, height):
+    def __init__(self, surface, x, y, width, height, mode):
         super().__init__()
 
         self.default_top_offset = y
@@ -29,6 +29,12 @@ class dinoPlayerClass(pygame.sprite.Sprite):
         self.stand = True
 
         self.mass = 0.2
+
+        self.mode = mode
+
+        if self.mode == "human":
+            img = pygame.image.load("./env/assets/dino.png").convert_alpha()
+            self.img = pygame.transform.scale(img, (self.width *  3, self.height * 2))
     def update(self):
 
         if self.canJump == False:
@@ -48,8 +54,13 @@ class dinoPlayerClass(pygame.sprite.Sprite):
                 self.velocity = 2
     
     def draw(self):
-        pygame.draw.rect(self.surface, (0, 0, 0),pygame.Rect(self.x, self.y, self.width, self.height
-        ))
+
+        if self.mode == "human":
+            pygame.draw.rect(self.surface, (0, 0, 0),pygame.Rect(self.x, self.y, self.width, self.height
+            ))
+        else:
+            self.surface.blit(self.img, (self.x, self.y - self.y / 5 ))
+
 
     def jump(self):
         if self.canJump and self.stand:
@@ -69,8 +80,8 @@ class dinoPlayerClass(pygame.sprite.Sprite):
 
     def getJump(self):
         return self.canJump
-    def location(self):
-        return np.array([self.x, self.y], dtype=int)
+    def obs(self):
+        return np.array([self.x, self.y, self.width, self.height], dtype=int)
 
     def reset(self):
         self.x = self.default_x

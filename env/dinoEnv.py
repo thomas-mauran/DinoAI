@@ -8,9 +8,10 @@ from .dinoPlayer import dinoPlayerClass
 from .obstacles import obstacleClass
 import numpy as np
 import random
+import cv2
 
-import base64
-import io
+from matplotlib import pyplot as plt
+import sys
 
 class dinoEnvClass(gym.Env):
 
@@ -24,11 +25,11 @@ class dinoEnvClass(gym.Env):
         if render_mode == 'human':
             self.screen = pygame.display.set_mode([self.screenSize[0], self.screenSize[1]])
         else:
-            self.screen= None
+            self.screen = pygame.Surface([self.screenSize[0], self.screenSize[1]])
         # Dino
         self.dinoDimension = [30, 60]
         self.y_init = self.screenSize[1] - self.dinoDimension[1]
-        self.dino = dinoPlayerClass(self.screen, 40, self.y_init, self.dinoDimension[0], self.dinoDimension[1])
+        self.dino = dinoPlayerClass(self.screen, 40, self.y_init, self.dinoDimension[0], self.dinoDimension[1], self.render_mode)
 
         # Obstacle list
         self.obstacles = []
@@ -41,24 +42,37 @@ class dinoEnvClass(gym.Env):
         # Gym env 
         # 2 actions, jump, go back to the floor, or do nothing
         self.action_space = Discrete(2)
-
-        self.observation_space = Dict(
-            {
-                'dino': Box(0, 1000, shape=(2,), dtype=int),
-                'obs1': Box(-100, 2000, shape=(2,), dtype=int),
-                'obs2': Box(-100, 2000, shape=(2,), dtype=int),
+        self.observation_space = Box(low=0, high=255, shape=(84,150,3), dtype=np.uint8)
+        # self.observation_space = Dict(
+        #     {
+        #         'dino': Box(0, 1000, shape=(4,), dtype=int),
+        #         'obs1': Box(-100, 2000, shape=(4,), dtype=int),
+        #         'obs2': Box(-100, 2000, shape=(4,), dtype=int),
 
                     
-            }
-        )
+        #     }
+        # )
 
-
+        self.i = 0
     def _get_obs(self):
-        return {
-            "dino": self.dino.location(), 
-            'obs1': self.obstacles[0].location(),
-            'obs2': self.obstacles[1].location()
-            }
+        self.i += 1 
+        buffer  = pygame.image.tostring(self.screen, "RGB")
+        pixels = np.frombuffer(buffer, dtype=np.uint8)
+        pixels = pixels.reshape((300, 1000, 3))
+        resized = cv2.resize(pixels, (150,84))
+        # if self.i == 2000:
+        #     plt.imshow(resized, interpolation='nearest')
+        #     plt.show()
+        # channel = np.reshape(resized, (1,83,100))
+        # np.set_printoptions(threshold=sys.maxsize)
+        
+        # print(resized.shape)
+        return resized
+        # return {
+        #     "dino": self.dino.obs(), 
+        #     'obs1': self.obstacles[0].obs(),
+        #     'obs2': self.obstacles[1].obs()
+        #     }
 
     def _get_info(self):
         return {}
@@ -128,16 +142,15 @@ class dinoEnvClass(gym.Env):
         self._render_frame()
         terminated = self.isGameDone()
         if terminated:
-            reward = -300
+            reward = -1
         
         # if self.checkJumpOver():
         #     reward = 100
 
-        reward = 1
+        reward = 0.1
         observation = self._get_obs()
         info = self._get_info()
         self.addScore = 0
-
         return observation, reward, terminated, info
 
 
@@ -148,7 +161,7 @@ class dinoEnvClass(gym.Env):
             pygame.quit()
 
     def spawn_obstacle(self, speed, offset):
-        obstacle = obstacleClass(self.screen, self.screenSize[0] + offset,self. y_init, self.dinoDimension[0], self.dinoDimension[1], speed)
+        obstacle = obstacleClass(self.screen, self.screenSize[0] + offset,self. y_init, self.dinoDimension[0], self.dinoDimension[1], speed, self.render_mode)
         self.obstacles.append(obstacle)
 
 

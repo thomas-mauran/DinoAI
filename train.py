@@ -24,25 +24,26 @@ register(
 
 freeze_support()
 
-nproc = 8
+# nproc = 8
 env_name = 'ChromeDino-v0'
 
 
-def make_env():
-    def _f():
-        env = gym.make('ChromeDino-v0')
-        return env
-    return _f
+# def make_env():
+#     def _f():
+#         env = gym.make('ChromeDino-v0')
+#         return env
+#     return _f
 
-if __name__ == '__main__':
-    freeze_support()
-    envs = [make_env() for i in range(nproc)]
-    envs = SubprocVecEnv(envs)
-    envs = VecFrameStack(envs, n_stack=10)
+# if __name__ == '__main__':
+#     freeze_support()
+# envs = [make_env() for i in range(nproc)]
+envs = dinoEnvClass()
+# envs = SubprocVecEnv(envs)
+# envs = VecFrameStack(envs, n_stack=10)
 
 
-    envs = gym.make(env_name)
-    check_env(envs)
+# envs = gym.make(env_name)
+# check_env(envs)
 
 
     # # Random method
@@ -61,13 +62,13 @@ if __name__ == '__main__':
     #     print ("Episode: {} Score: {} Obs: {}".format(episode, score, obs))
     # envs.close()
 
-    log_path = os.path.join('files', 'Logs')
+log_path = os.path.join('files', 'Logs')
 
-    save_path = os.path.join('files', 'Saved_Models', 'DQN_new')
+save_path = os.path.join('files', 'Saved_Models', 'PPO_new')
 
-    model = DQN('MultiInputPolicy', envs, verbose=1, tensorboard_log=log_path)
+model = PPO('CnnPolicy', envs, verbose=1, tensorboard_log=log_path)
 
-    model.learn(total_timesteps=2000000)    
+model.learn(total_timesteps=1000000)    
 
 
-    model.save(save_path)    
+model.save(save_path)    

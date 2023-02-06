@@ -11,9 +11,13 @@ from stable_baselines3.common.evaluation import evaluate_policy
 import os 
 
 env = dinoEnvClass(render_mode="human")
+# print(env.observation_space.sample())
 check_env(env)
+# env.reset()
+# n_state, reward, done, info= env.step(0)
 
-env.reset()
+
+# env.reset()
 episodes = 10
 
 
@@ -23,31 +27,30 @@ episodes = 10
 #     score = 0
 
 #     while not done:
-#         env.render()
+#         env.render(mode="human")
 #         action = env.action_space.sample()
 #         n_state, reward, done, info= env.step(action)
 #         score += reward
 #     print ("Episode: {} Score: {}".format(episode, score))
 # env.close()
 
-model_path = os.path.join('files', 'Saved_Models', 'DQN_buffer.zip')
+model_path = os.path.join('files', 'Saved_Models', 'A2C_4.zip')
 
-model = DQN.load(model_path, env=env)
+model = A2C.load(model_path, env=env)
 
-evaluate_policy(model, env, n_eval_episodes=2, render=True)
+# evaluate_policy(model, env, n_eval_episodes=5, render=False)
 
-# for episode in range (1, episodes + 1):
-#     obs = env.reset()
-#     done = False
-#     score = 0
+for episode in range (1, episodes + 1):
+    obs = env.reset()
+    done = False
+    score = 0
 
-#     while not done:
-#         env.render()
-#         action, _ = model.predict(obs)
-#         obs, reward, done, info = env.step(action)
-#         score += reward
-#         print(obs)
-#     print ("Episode: {} Score: {}".format(episode, score))
-# env.close()
+    while not done:
+        env.render(mode='human')
+        action, _ = model.predict(obs, deterministic=True)
+        obs, reward, done, info = env.step(action)
+        score += reward
+    print ("Episode: {} Score: {}".format(episode, score))
+env.close()
 
 
