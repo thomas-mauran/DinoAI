@@ -41,15 +41,13 @@ class dinoEnvClass(gym.Env):
 
         # Gym env 
         # 2 actions, jump, go back to the floor, or do nothing
-        self.action_space = Discrete(2)
-        self.observation_space = Box(low=0, high=255, shape=(84,150,3), dtype=np.uint8)
+        self.action_space = Discrete(3)
+        self.observation_space = Box(low=0, high=255, shape=(100,200,3), dtype=np.uint8)
         # self.observation_space = Dict(
         #     {
         #         'dino': Box(0, 1000, shape=(4,), dtype=int),
         #         'obs1': Box(-100, 2000, shape=(4,), dtype=int),
-        #         'obs2': Box(-100, 2000, shape=(4,), dtype=int),
-
-                    
+        #         'obs2': Box(-100, 2000, shape=(4,), dtype=int),                   
         #     }
         # )
 
@@ -59,15 +57,13 @@ class dinoEnvClass(gym.Env):
         buffer  = pygame.image.tostring(self.screen, "RGB")
         pixels = np.frombuffer(buffer, dtype=np.uint8)
         pixels = pixels.reshape((300, 1000, 3))
-        resized = cv2.resize(pixels, (150,84))
-        # if self.i == 2000:
-        #     plt.imshow(resized, interpolation='nearest')
+
+        cropped = pixels[200:300, 100:300]
+        # if self.i == 9000:
+        #     plt.imshow(cropped, interpolation='nearest')
         #     plt.show()
-        # channel = np.reshape(resized, (1,83,100))
-        # np.set_printoptions(threshold=sys.maxsize)
         
-        # print(resized.shape)
-        return resized
+        return cropped
         # return {
         #     "dino": self.dino.obs(), 
         #     'obs1': self.obstacles[0].obs(),
@@ -88,8 +84,8 @@ class dinoEnvClass(gym.Env):
         self.dino.reset()
 
         self.obstacles = []
-        self.spawn_obstacle(self.speed, random.randint(0, 300))
-        self.spawn_obstacle(self.speed, random.randint(500, 700))
+        self.spawn_obstacle(self.speed, 100)
+        self.spawn_obstacle(self.speed, 600)
 
 
 
@@ -114,7 +110,7 @@ class dinoEnvClass(gym.Env):
                 self.obstacles.remove(obs)
                 del obs
                 self.addScore = 100
-                self.spawn_obstacle(self.speed, random.randint(0, 400))
+                self.spawn_obstacle(self.speed, 100)
 
         if self.render_mode == 'human':
             pygame.init()
@@ -135,19 +131,19 @@ class dinoEnvClass(gym.Env):
         if action == 1:
             self.dino.jump()
 
-        self.speed += random.uniform(0.0000007, 0.000001)
+        self.speed += 0.000001
         # self.score = self.score + 0.001
     
+        reward = 0
 
         self._render_frame()
         terminated = self.isGameDone()
         if terminated:
-            reward = -1
+            reward = -10
         
-        # if self.checkJumpOver():
-        #     reward = 100
+        if self.checkJumpOver():
+            reward = 10
 
-        reward = 0.1
         observation = self._get_obs()
         info = self._get_info()
         self.addScore = 0

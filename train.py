@@ -64,11 +64,11 @@ envs = dinoEnvClass()
 
 log_path = os.path.join('files', 'Logs')
 
-save_path = os.path.join('files', 'Saved_Models', 'PPO_new')
+save_path = os.path.join('files', 'Saved_Models', 'A2C_cropped4')
 
-model = PPO('CnnPolicy', envs, verbose=1, tensorboard_log=log_path)
+model = A2C('CnnPolicy', envs, verbose=1, tensorboard_log=log_path)
 
-model.learn(total_timesteps=1000000)    
+model.learn(total_timesteps=100000)    
 
 
 model.save(save_path)    

@@ -34,11 +34,11 @@ episodes = 10
 #     print ("Episode: {} Score: {}".format(episode, score))
 # env.close()
 
-model_path = os.path.join('files', 'Saved_Models', 'A2C_4.zip')
+model_path = os.path.join('files', 'Saved_Models', 'A2C_cropped4.zip')
 
 model = A2C.load(model_path, env=env)
 
-# evaluate_policy(model, env, n_eval_episodes=5, render=False)
+evaluate_policy(model, env, n_eval_episodes=5, render=False)
 
 for episode in range (1, episodes + 1):
     obs = env.reset()

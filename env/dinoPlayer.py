@@ -56,7 +56,7 @@ class dinoPlayerClass(pygame.sprite.Sprite):
     def draw(self):
 
         if self.mode == "human":
-            pygame.draw.rect(self.surface, (0, 0, 0),pygame.Rect(self.x, self.y, self.width, self.height
+            pygame.draw.rect(self.surface, (200, 0, 0),pygame.Rect(self.x, self.y, self.width, self.height
             ))
         else:
             self.surface.blit(self.img, (self.x, self.y - self.y / 5 ))
