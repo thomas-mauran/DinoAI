@@ -13,6 +13,8 @@ import cv2
 from matplotlib import pyplot as plt
 import sys
 
+import time
+
 class dinoEnvClass(gym.Env):
 
     def __init__(self, render_mode=None):      
@@ -37,19 +39,12 @@ class dinoEnvClass(gym.Env):
         # Game variables
         self.addScore = 0
         self.running = False
-        self.speed = 0.12
+        self.speed = 1
 
         # Gym env 
         # 2 actions, jump, go back to the floor, or do nothing
         self.action_space = Discrete(3)
-        self.observation_space = Box(low=0, high=255, shape=(100,200,3), dtype=np.uint8)
-        # self.observation_space = Dict(
-        #     {
-        #         'dino': Box(0, 1000, shape=(4,), dtype=int),
-        #         'obs1': Box(-100, 2000, shape=(4,), dtype=int),
-        #         'obs2': Box(-100, 2000, shape=(4,), dtype=int),                   
-        #     }
-        # )
+        self.observation_space = Box(low=0, high=255, shape=(1, 83, 200), dtype=np.uint8)
 
         self.i = 0
     def _get_obs(self):
@@ -57,18 +52,17 @@ class dinoEnvClass(gym.Env):
         buffer  = pygame.image.tostring(self.screen, "RGB")
         pixels = np.frombuffer(buffer, dtype=np.uint8)
         pixels = pixels.reshape((300, 1000, 3))
+        gray = cv2.cvtColor(pixels, cv2.COLOR_BGR2GRAY)
 
-        cropped = pixels[200:300, 100:300]
-        # if self.i == 9000:
-        #     plt.imshow(cropped, interpolation='nearest')
+        cropped = gray[217:300, 20:220]
+        channel = np.reshape(cropped, (1,83,200))
+
+        # if self.i == 1000:
+        #     plt.imshow(channel, interpolation='nearest')
         #     plt.show()
         
-        return cropped
-        # return {
-        #     "dino": self.dino.obs(), 
-        #     'obs1': self.obstacles[0].obs(),
-        #     'obs2': self.obstacles[1].obs()
-        #     }
+        return channel
+
 
     def _get_info(self):
         return {}
@@ -79,7 +73,7 @@ class dinoEnvClass(gym.Env):
         self.score = 0
         self.running = True
 
-        self.speed = 0.12
+        self.speed = 1
         # reset the env
         self.dino.reset()
 
@@ -99,6 +93,9 @@ class dinoEnvClass(gym.Env):
         return observation
 
     def render(self, mode):
+
+
+
         pass
     def _render_frame(self):
 
@@ -110,48 +107,55 @@ class dinoEnvClass(gym.Env):
                 self.obstacles.remove(obs)
                 del obs
                 self.addScore = 100
-                self.spawn_obstacle(self.speed, 100)
+                self.speed += 0.05
+                self.spawn_obstacle(self.speed, random.randint(200, 1000))
+
+                
+        self.screen.fill((255, 255, 255))
 
         if self.render_mode == 'human':
             pygame.init()
             pygame.display.init()
-            self.screen.fill((255, 255, 255))
-            self.dino.draw()
+        self.dino.draw()
 
-            for obs in self.obstacles:
-                obs.draw()
 
-            pygame.display.update()
+        for obs in self.obstacles:
+            obs.draw()
+            if self.render_mode == 'human':
+                pygame.display.update()
 
 
     def step(self, action):
-        self.addScore = 0.01
-        if action == 0:
-            self.dino.down()
+
+
+        # time.sleep(0.002)
+        # if action == 0:
+        #     self.dino.down()
         if action == 1:
             self.dino.jump()
 
-        self.speed += 0.000001
         # self.score = self.score + 0.001
     
         reward = 0
 
         self._render_frame()
         terminated = self.isGameDone()
+        
         if terminated:
-            reward = -10
+            reward = -100
         
         if self.checkJumpOver():
             reward = 10
 
         observation = self._get_obs()
-        info = self._get_info()
-        self.addScore = 0
+        info = {}
         return observation, reward, terminated, info
 
 
 
     def close(self):
+
+        
         if self.screen is not None:
             pygame.display.quit()
             pygame.quit()
@@ -208,65 +212,58 @@ class dinoEnvClass(gym.Env):
                 return True
         return False
 
-    def initGame(self):
+    # def initGame(self):
         
-        # self.score = 0
-        self.running = True
+    #     # self.score = 0
+    #     self.running = True
 
-        self.spawn_obstacle(0.1, random.randint(100, 400))
-        self.spawn_obstacle(0.1, random.randint(600, 1000))
+    #     self.spawn_obstacle(0.1, random.randint(100, 400))
+    #     self.spawn_obstacle(0.1, random.randint(600, 1000))
 
-        self.main()
+    #     self.main()
 
-    def main(self):
+    # def main(self):
 
-        while running:
-            self.speed += random.uniform(0.0000001, 0.000001)
-
-
-            self.screen.fill((255, 255, 255))
-
-            # self.score = self.score + 0.001
+    #     while running:
+    #         self.speed += random.uniform(0.0000001, 0.000001)
 
 
-            # Event handlers 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        self.dino.jump()
-                    if event.key == pygame.K_DOWN:
-                        self.dino.down()
+    #         self.screen.fill((255, 255, 255))
 
-                        
+    #         # self.score = self.score + 0.001
 
+    #         # Event handlers 
+    #         for event in pygame.event.get():
+    #             if event.type == pygame.QUIT:
+    #                 running = False
+    #             if event.type == pygame.KEYDOWN:
+    #                 if event.key == pygame.K_SPACE:
+    #                     self.dino.jump()
+    #                 if event.key == pygame.K_DOWN:
+    #                     self.dino.down()
 
-                    
+    #         # Draw the objects on the screen
 
+    #         self.dino.update()
+    #         self.dino.draw()
 
-            # Draw the objects on the screen
+    #         for obs in self.obstacles:
+    #             obs.update()
+    #             obs.draw()
+    #             if self.isHittingDino(obs):
+    #                 running = False
+    #             if obs.get_x() < 0 - obs.getWidth() :
+    #                 self.obstacles.remove(obs)
+    #                 del obs
+    #                 # self.score += 100
+    #                 self.spawn_obstacle(self.speed, random.randint(30, 1000))
 
-            self.dino.update()
-            self.dino.draw()
-
-            for obs in self.obstacles:
-                obs.update()
-                obs.draw()
-                if self.isHittingDino(obs):
-                    running = False
-                if obs.get_x() < 0 - obs.getWidth() :
-                    self.obstacles.remove(obs)
-                    del obs
-                    # self.score += 100
-                    self.spawn_obstacle(self.speed, random.randint(30, 1000))
-
-            # Update the scren frames
-            pygame.display.update()
+    #         # Update the scren frames
+    #         pygame.display.update()
         
-            #print(round(score))
+    #         #print(round(score))
 
-        print(round(self.score))
-        pygame.quit()
+    #     print(round(self.score))
+    #     pygame.quit()
 
 

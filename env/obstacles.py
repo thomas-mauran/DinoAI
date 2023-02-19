@@ -28,8 +28,9 @@ class obstacleClass(pygame.sprite.Sprite):
             pygame.draw.rect(self.surface, (0, 0, 0),pygame.Rect(self.x, self.y, self.width, self.height
             ))
         else:
-            self.surface.blit(self.img, (self.x, self.y - self.y / 14 ))
-
+            pygame.draw.rect(self.surface, (0, 0, 0),pygame.Rect(self.x, self.y, self.width, self.height
+            ))
+            # self.surface.blit(self.img, (self.x, self.y - self.y / 14 ))
     def update(self):
         self.x -= self.speed
 
