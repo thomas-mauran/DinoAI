@@ -155,7 +155,7 @@ class dinoEnvClass(gym.Env):
 
     def close(self):
 
-        
+
         if self.screen is not None:
             pygame.display.quit()
             pygame.quit()
@@ -211,59 +211,3 @@ class dinoEnvClass(gym.Env):
             if self.jumpedOver(obs):
                 return True
         return False
-
-    # def initGame(self):
-        
-    #     # self.score = 0
-    #     self.running = True
-
-    #     self.spawn_obstacle(0.1, random.randint(100, 400))
-    #     self.spawn_obstacle(0.1, random.randint(600, 1000))
-
-    #     self.main()
-
-    # def main(self):
-
-    #     while running:
-    #         self.speed += random.uniform(0.0000001, 0.000001)
-
-
-    #         self.screen.fill((255, 255, 255))
-
-    #         # self.score = self.score + 0.001
-
-    #         # Event handlers 
-    #         for event in pygame.event.get():
-    #             if event.type == pygame.QUIT:
-    #                 running = False
-    #             if event.type == pygame.KEYDOWN:
-    #                 if event.key == pygame.K_SPACE:
-    #                     self.dino.jump()
-    #                 if event.key == pygame.K_DOWN:
-    #                     self.dino.down()
-
-    #         # Draw the objects on the screen
-
-    #         self.dino.update()
-    #         self.dino.draw()
-
-    #         for obs in self.obstacles:
-    #             obs.update()
-    #             obs.draw()
-    #             if self.isHittingDino(obs):
-    #                 running = False
-    #             if obs.get_x() < 0 - obs.getWidth() :
-    #                 self.obstacles.remove(obs)
-    #                 del obs
-    #                 # self.score += 100
-    #                 self.spawn_obstacle(self.speed, random.randint(30, 1000))
-
-    #         # Update the scren frames
-    #         pygame.display.update()
-        
-    #         #print(round(score))
-
-    #     print(round(self.score))
-    #     pygame.quit()
-
-
